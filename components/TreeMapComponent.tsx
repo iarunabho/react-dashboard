@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
@@ -36,6 +36,7 @@ const TreeMapComponent: React.FC<TreeMapComponentProps> = ({ data }) => {
           data={formattedData.children}
           dataKey="size"
           stroke="#fff"
+          isAnimationActive={false}
           content={<CustomizedContent />} // Use the component directly
         >
           <Tooltip content={<CustomTooltip />} />
@@ -47,39 +48,88 @@ const TreeMapComponent: React.FC<TreeMapComponentProps> = ({ data }) => {
 
 // Custom content component for Treemap
 const CustomizedContent: React.FC<any> = (props) => {
-  const { x, y, width, height, name, size, color } = props;
-
-  return (
-    <g>
-      <rect
-        x={x}
-        y={y}
-        width={width}
-        height={height}
-        style={{
-          fill: color,
-          stroke: '#fff',
-          strokeWidth: 2,
-          strokeOpacity: 1,
-        }}
-      />
-      {
-        width > 50 && height > 30 && (
-          <text
-            x={x + width / 2}
-            y={y + height / 2}
-            textAnchor="middle"
-            fill="#fff"
-            fontSize={12}
-          >
-            <tspan x={x + width / 2} dy="-0.5em">{name}</tspan>
-            <tspan x={x + width / 2} dy="1.2em">{size}</tspan>
-          </text>
-        )
-      }
-    </g>
-  );
-};
+    const { x, y, width, height, name = '', size, color } = props;
+  
+    // Helper function to wrap text
+    const wrapText = (text: string, width: number) => {
+      const lines: string[] = [];
+      const words = text.split(' ');
+  
+      let line = '';
+  
+      words.forEach(word => {
+        const testLine = line + (line ? ' ' : '') + word;
+        const testWidth = measureTextWidth(testLine);
+  
+        if (testWidth > width) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = testLine;
+        }
+      });
+  
+      lines.push(line);
+  
+      return lines;
+    };
+  
+    // Function to measure text width (using a temporary canvas)
+    const measureTextWidth = (text: string) => {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      if (!context) return 0;
+      context.font = '12px sans-serif';
+      return context.measureText(text).width;
+    };
+  
+    const lines = wrapText(name, width - 10);
+  
+    return (
+      <g>
+        <rect
+          x={x}
+          y={y}
+          width={width}
+          height={height}
+          style={{
+            fill: color,
+            stroke: '#fff',
+            strokeWidth: 2,
+            strokeOpacity: 1,
+          }}
+        />
+        {
+          width > 50 && height > 30 && (
+            <g transform={`translate(${x},${y})`}>
+              {lines.map((line, index) => (
+                <text
+                  key={index}
+                  x={width / 2}
+                  y={(height / 2) + (index - lines.length / 2) * 14}
+                  textAnchor="middle"
+                  fill="#fff"
+                  fontSize={12}
+                  dominantBaseline="central"
+                >
+                  {line}
+                </text>
+              ))}
+              <text
+                x={width / 2}
+                y={(height / 2) + (lines.length - 1) * 14 + 15}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize={12}
+              >
+                {size}
+              </text>
+            </g>
+          )
+        }
+      </g>
+    );
+  };
 
 // Custom tooltip component
 const CustomTooltip: React.FC<any> = ({ active, payload }) => {
