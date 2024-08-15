@@ -1,11 +1,25 @@
 'use client'
 
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, TooltipProps } from 'recharts';
 
-const CustomTooltip = ({ active, payload }) => {
+// Define the interface for the tooltip payload
+interface CustomTooltipPayload {
+  name: string;
+  value: number;
+  color: string;
+}
+
+// Define the interface for the tooltip props
+interface CustomTooltipProps extends TooltipProps<any, any> {
+  active?: boolean;
+  payload?: { payload: CustomTooltipPayload }[];
+}
+
+// Custom Tooltip component
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
   if (active && payload && payload.length) {
-    const data = payload[0].payload;
+    const data = payload[0].payload as CustomTooltipPayload;
     return (
       <div className="bg-white p-2 shadow-md rounded-md border border-gray-200">
         <p className="font-bold">{data.name}</p>
@@ -17,7 +31,19 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-const ChartComponent = ({ data }) => (
+// Define the interface for the chart data
+interface ChartData {
+  name: string;
+  value: number;
+  color: string;
+}
+
+interface ChartComponentProps {
+  data: ChartData[];
+}
+
+// Chart component
+const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => (
   <div className="relative w-72 h-72">
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>

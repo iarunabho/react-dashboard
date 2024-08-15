@@ -4,15 +4,21 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ChevronDown, PlusCircle } from 'lucide-react';
 
-const RiskCategory = ({ title, percentage, status }) => {
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case 'above-target': return 'bg-emerald-500';
-      case 'on-target': return 'bg-yellow-500';
-      case 'below-target': return 'bg-red-500';
-      default: return 'bg-gray-500';
-    }
-  };
+interface RiskCategoryProps {
+    title: string;
+    percentage: number;
+    status: string;
+  }
+  
+  const RiskCategory: React.FC<RiskCategoryProps> = ({ title, percentage, status }) => {
+    const getStatusColor = (status: string) => {
+      switch (status.toLowerCase()) {
+        case 'above-target': return 'bg-emerald-500';
+        case 'on-target': return 'bg-yellow-500';
+        case 'below-target': return 'bg-red-500';
+        default: return 'bg-gray-500';
+      }
+    };
 
   return (
     <Card className={`${getStatusColor(status)} text-white`}>

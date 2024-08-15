@@ -6,7 +6,14 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const BarChartComponent = ({ data }) => {
+interface BarChartComponentProps {
+  data: {
+    country_name: string;
+    learner_count: number;
+  }[];
+}
+
+const BarChartComponent: React.FC<BarChartComponentProps> = ({ data }) => {
   const chartData = {
     labels: data.map(item => item.country_name),
     datasets: [

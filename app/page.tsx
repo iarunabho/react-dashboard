@@ -43,12 +43,19 @@ const Dashboard = () => {
     { country_name: 'South Korea', learner_count: 220 }
   ];
 
-  const formatTime = (minutes) => {
+  const formatTime = (minutes: number) => {
     const duration = intervalToDuration({ start: 0, end: minutes * 60 * 1000 });
     return formatDuration(duration, { format: ['hours', 'minutes'] });
   };
 
-  const TimeVisual = ({ title, time, infoText, longestTime }) => {
+  interface TimeVisualProps {
+    title: string;
+    time: number;
+    infoText: string;
+    longestTime: number;
+  }
+
+  const TimeVisual: React.FC<TimeVisualProps> = ({ title, time, infoText, longestTime }) => {
     const percentage = (time / longestTime) * 100;
     const isLongest = time === longestTime;
     const texture = `repeating-linear-gradient(
@@ -58,7 +65,7 @@ const Dashboard = () => {
       ${isLongest ? '#E6EEF8' : '#c8cfd2'} 10px,
       ${isLongest ? '#E6EEF8' : '#c8cfd2'} 20px
     )`;
-
+  
     return (
       <Card className="shadow-md">
         <CardContent className="p-4">

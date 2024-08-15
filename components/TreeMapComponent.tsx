@@ -3,9 +3,23 @@
 import React from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
 
+// Define the data item interface
+interface DataItem {
+  topic: string;
+  course_count: number;
+}
+
+// Define the props interface for the TreeMapComponent
+interface TreeMapComponentProps {
+  data: DataItem[];
+}
+
+// Define colors for the treemap items
 const COLORS = ['#8884d8', '#83a6ed', '#8dd1e1', '#82ca9d', '#a4de6c', '#d0ed57', '#ffc658'];
 
-const TreeMapComponent = ({ data }) => {
+// TreeMap component
+const TreeMapComponent: React.FC<TreeMapComponentProps> = ({ data }) => {
+  // Format the data for the treemap
   const formattedData = {
     name: 'Risk Areas',
     children: data.map((item, index) => ({
@@ -21,10 +35,8 @@ const TreeMapComponent = ({ data }) => {
         <Treemap
           data={formattedData.children}
           dataKey="size"
-          ratio={4 / 3}
           stroke="#fff"
-          content={<CustomizedContent />}
-          animationDuration={0} // Disable animation
+          content={<CustomizedContent />} // Use the component directly
         >
           <Tooltip content={<CustomTooltip />} />
         </Treemap>
@@ -33,7 +45,10 @@ const TreeMapComponent = ({ data }) => {
   );
 };
 
-const CustomizedContent = ({ root, depth, x, y, width, height, index, name, size, color }) => {
+// Custom content component for Treemap
+const CustomizedContent: React.FC<any> = (props) => {
+  const { x, y, width, height, name, size, color } = props;
+
   return (
     <g>
       <rect
@@ -66,7 +81,8 @@ const CustomizedContent = ({ root, depth, x, y, width, height, index, name, size
   );
 };
 
-const CustomTooltip = ({ active, payload }) => {
+// Custom tooltip component
+const CustomTooltip: React.FC<any> = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (

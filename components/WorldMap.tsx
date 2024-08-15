@@ -1,18 +1,28 @@
-'use client'
-
 import React, { memo, useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps";
 import { scaleLinear } from "d3-scale";
-import { Tooltip } from 'react-tooltip'
+import { Tooltip } from 'react-tooltip';
+
+// Define the type for the data prop
+interface DataItem {
+  country_name: string;
+  learner_count: number;
+}
+
+// Define the props for WorldMap
+interface WorldMapProps {
+  data: DataItem[];
+}
 
 const geoUrl = "https://unpkg.com/world-atlas@2.0.2/countries-110m.json";
 
-const WorldMap = ({ data }) => {
-  const [tooltipContent, setTooltipContent] = useState("");
+const WorldMap: React.FC<WorldMapProps> = ({ data }) => {
+  const [tooltipContent, setTooltipContent] = useState<string>("");
   const maxLearners = Math.max(...data.map(d => d.learner_count));
   const minLearners = Math.min(...data.map(d => d.learner_count));
 
-  const colorScale = scaleLinear()
+  // Create a color scale with numeric domain and color range
+  const colorScale = scaleLinear<string, string>()
     .domain([minLearners, maxLearners])
     .range(["#CFD8DC", "#00796B"]);
 
@@ -59,8 +69,9 @@ const WorldMap = ({ data }) => {
   );
 };
 
-const getCoordinates = (countryName) => {
-  const coordinates = {
+// Coordinates function with type annotation for countryName
+const getCoordinates = (countryName: string) => {
+  const coordinates: { [key: string]: [number, number] } = {
     'United States of America': [-95, 38],
     'Spain': [-3, 40],
     'Germany': [10, 51],
