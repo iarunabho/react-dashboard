@@ -1,113 +1,212 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React from 'react';
+import dynamic from 'next/dynamic';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Info, ChevronDown, Clock } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { formatDuration, intervalToDuration } from 'date-fns';
+
+const ChartComponent = dynamic(() => import('../components/ChartComponent'), { ssr: false });
+const TreeMapComponent = dynamic(() => import('../components/TreeMapComponent'), { ssr: false });
+const WorldMap = dynamic(() => import('../components/WorldMap'), { ssr: false });
+
+const Dashboard = () => {
+  const completionData = [
+    { name: 'Complete', value: 80, color: '#00C49F' },
+    { name: 'In Progress', value: 10, color: '#1E90FF' },
+    { name: 'Not Started', value: 10, color: '#FF6347' },
+  ];
+
+  const riskData = [
+    { topic: 'Code of Conduct', course_count: 2 },
+    { topic: 'Gifts & Entertainment/Hospitality', course_count: 2 },
+    { topic: 'Harassment & Discrimination', course_count: 2 },
+    { topic: 'Antitrust & Competition', course_count: 1 },
+    { topic: 'Corporate Social Responsibility', course_count: 1 },
+    { topic: 'Ethical Leadership', course_count: 1 },
+    { topic: 'Government Contracting & Relationships', course_count: 1 }
+  ];
+
+  const geographyData = [
+    { country_name: 'United States of America', learner_count: 5500 },
+    { country_name: 'Spain', learner_count: 2200 },
+    { country_name: 'Germany', learner_count: 1320 },
+    { country_name: 'India', learner_count: 880 },
+    { country_name: 'Canada', learner_count: 330 },
+    { country_name: 'Brazil', learner_count: 242 },
+    { country_name: 'South Korea', learner_count: 220 }
+  ];
+
+  const formatTime = (minutes) => {
+    const duration = intervalToDuration({ start: 0, end: minutes * 60 * 1000 });
+    return formatDuration(duration, { format: ['hours', 'minutes'] });
+  };
+
+  const TimeVisual = ({ title, time, infoText, longestTime }) => {
+    const percentage = (time / longestTime) * 100;
+    const isLongest = time === longestTime;
+    const texture = `repeating-linear-gradient(
+      -45deg,
+      ${isLongest ? '#CCE0F4' : '#acb7bf'},
+      ${isLongest ? '#CCE0F4' : '#acb7bf'} 10px,
+      ${isLongest ? '#E6EEF8' : '#c8cfd2'} 10px,
+      ${isLongest ? '#E6EEF8' : '#c8cfd2'} 20px
+    )`;
+
+    return (
+      <Card className="shadow-md">
+        <CardContent className="p-4">
+          <h3 className="text-base font-semibold mb-2">{title}</h3>
+          <div className="relative h-24 bg-gray-100 rounded-md">
+            <div
+              className="absolute bottom-0 left-0 right-0 overflow-hidden rounded-md"
+              style={{ height: `${percentage}%`, backgroundImage: texture }}
+            >
+              <div className="absolute inset-0"></div>
+            </div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-xl font-bold">{formatTime(time)}</div>
+            </div>
+          </div>
+          <div className="flex items-center mt-2 text-sm text-blue-600">
+            <Info size={16} className="mr-1" />
+            <span>{infoText}</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Dynamic time data
+  const shortestTime = 22; // in minutes
+  const longestTime = 132; // in minutes (2 hours 12 minutes)
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 shadow-lg">
+          <CardHeader>
+            <h2 className="text-xl font-bold">Course Completions</h2>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex flex-col lg:flex-row items-center justify-between">
+              <div className="w-full lg:w-2/3">
+                <ChartComponent data={completionData} />
+              </div>
+              <div className="w-full lg:w-1/3 space-y-4 mt-6 lg:mt-0">
+                {completionData.map((item) => (
+                  <div key={item.name} className="flex items-center">
+                    <div className="w-4 h-4 rounded-full mr-3" style={{ backgroundColor: item.color }}></div>
+                    <div className="text-sm flex-grow">{item.name}</div>
+                    <div className="text-sm font-bold">{item.value}%</div>
+                  </div>
+                ))}
+                <div className="mt-4">
+                  <div className="text-sm font-bold">83% Industry benchmark</div>
+                  <Progress value={83} className="h-2 mt-1" />
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              <div className="flex justify-between items-center">
+                <div>
+                  <span className="font-bold text-green-500">+21</span> completions
+                  <div className="text-xs text-gray-500">in the last 30 days</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-sm">Target</div>
+                  <div className="font-bold text-red-500">522/85%</div>
+                  <div className="text-xs text-gray-500">(-18.2%)</div>
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 mt-3">
+                Just 18 completions to go before you reach your target.
+                Why not send your learners a reminder to complete their training?
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="shadow-md">
+              <CardHeader>Total Time Spent in 2024</CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-indigo-600">8,500</div>
+                <div className="text-sm text-gray-500">Hours</div>
+              </CardContent>
+            </Card>
+            <Card className="shadow-md">
+              <CardHeader>Average Training Time (per person)</CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-3xl font-bold text-indigo-600">35</div>
+                  <Progress value={87.5} className="w-1/2 h-2" />
+                </div>
+                <div className="text-sm text-gray-500">Minutes</div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Avg. training time (per person) has declined from 40 mins to 35 mins.
+                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info size={16} className="text-blue-500 mt-2 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>What is driving this reduction?</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <TimeVisual 
+              title="Shortest Time Taken"
+              time={shortestTime}
+              infoText="Where are courses taken quicker?"
+              longestTime={longestTime}
             />
-          </a>
+            <TimeVisual 
+              title="Longest Time Taken"
+              time={longestTime}
+              infoText="Which courses take longer to complete?"
+              longestTime={longestTime}
+            />
+          </div>
         </div>
       </div>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Card className="shadow-lg">
+          <CardHeader>
+            <h2 className="text-xl font-bold">Risk Areas</h2>
+          </CardHeader>
+          <CardContent className="p-4 h-[400px]"> {/* Adjust this height as needed */}
+            <TreeMapComponent data={riskData} />
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-lg">
+          <CardHeader>
+            <h2 className="text-xl font-bold">Learner Distribution by Country</h2>
+          </CardHeader>
+          <CardContent className="p-4 h-[400px]"> {/* Match this height with Risk Areas */}
+            <WorldMap data={geographyData} />
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div className="mt-6 text-sm text-blue-600 flex items-center">
+        <Clock size={16} className="mr-2" />
+        <span>Performance compared to last year?</span>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default Dashboard;
