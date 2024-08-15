@@ -1,6 +1,5 @@
 @import url('https://unpkg.com/leaflet@1.7.1/dist/leaflet.css');
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,4 +68,48 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Tabs styling */
+.tabs {
+  margin-bottom: 1rem;
+}
+
+.tab-list {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 1rem;
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: color 0.3s, border-bottom 0.3s;
+}
+
+.tab-button.active {
+  border-bottom: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.tab-content {
+  padding: 1rem;
+}
+
+
+/* Card styling */
+.card {
+  @apply bg-card border border-border rounded-md shadow-lg;
+}
+
+.card-header {
+  @apply text-xl font-bold text-card-foreground;
+}
+
+.card-content {
+  @apply p-4;
 }
